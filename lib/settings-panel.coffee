@@ -60,7 +60,7 @@ class SettingsPanel extends CollapsibleSectionPanel
     icon = @options.icon ? 'gear'
     note = @options.note
 
-    sortedSettings = @sortSettings(namespace, settings)
+    sortedSettings = sortSettings(namespace, settings)
 
     @append $$ ->
       @div class: 'section-container', =>
@@ -75,9 +75,6 @@ class SettingsPanel extends CollapsibleSectionPanel
         @div class: 'section-body', =>
           for name in sortedSettings
             appendSetting.call(this, namespace, name, settings[name])
-
-  sortSettings: (namespace, settings) ->
-    _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
 
   bindCollapseAllButton: ->
     @on 'click', '.section-heading .btn-collapse-all', (e) ->
@@ -197,6 +194,9 @@ isEditableArray = (array) ->
     return false unless _.isString(item)
   true
 
+sortSettings = (namespace, settings) ->
+  _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
+
 appendSetting = (namespace, name, value) ->
   if namespace is 'core'
     return if name is 'themes' # Handled in the Themes panel
@@ -310,5 +310,6 @@ appendObject = (namespace, name, value) ->
     @h3 class: 'sub-section-heading has-items', =>
       @text title
     @div class: 'sub-section-body', =>
-      for key in _.keys(value).sort()
+      sortedSettings = sortSettings(keyPath, value)
+      for key in sortedSettings
         appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
