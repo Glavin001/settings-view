@@ -64,8 +64,13 @@ class SettingsPanel extends CollapsibleSectionPanel
 
     @append $$ ->
       @div class: 'section-container', =>
-        @div class: "block section-heading icon icon-#{icon}", title, =>
-          @button class: 'btn btn-collapse-all pull-right', 'Collapse All Sections'
+        @div outlet: 'sectionHeading', class: "block section-heading icon icon-#{icon}", title, =>
+          # Show "Collapse All" button
+          # Only if there is at least 1 collapsable section
+          hasItems = !!_.find(sortedSettings, (name) ->
+            atom.config.getSchema("#{namespace}.#{name}")?.type is 'object'
+          )
+          @button class: 'btn btn-collapse-all pull-right', 'Collapse All Sections' if hasItems
         @raw note if note
         @div class: 'section-body', =>
           for name in sortedSettings
