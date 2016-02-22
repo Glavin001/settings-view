@@ -40,6 +40,7 @@ class SettingsPanel extends CollapsibleSectionPanel
     @bindInputFields()
     @bindSelectFields()
     @bindEditors()
+    @bindCollapseAllButton()
     @handleEvents()
 
 
@@ -63,7 +64,8 @@ class SettingsPanel extends CollapsibleSectionPanel
 
     @append $$ ->
       @div class: 'section-container', =>
-        @div class: "block section-heading icon icon-#{icon}", title
+        @div class: "block section-heading icon icon-#{icon}", title, =>
+          @button class: 'btn btn-collapse-all pull-right', 'Collapse All Sections'
         @raw note if note
         @div class: 'section-body', =>
           for name in sortedSettings
@@ -71,6 +73,10 @@ class SettingsPanel extends CollapsibleSectionPanel
 
   sortSettings: (namespace, settings) ->
     _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
+
+  bindCollapseAllButton: ->
+    @on 'click', '.section-heading .btn-collapse-all', (e) ->
+      $(e.currentTarget).parent().parent().find('.section-body .sub-section').addClass('collapsed')
 
   bindInputFields: ->
     @find('input[id]').toArray().forEach (input) =>
